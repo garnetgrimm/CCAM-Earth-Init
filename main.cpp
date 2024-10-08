@@ -9,7 +9,8 @@ struct EarthModule {
 
     DaisySeed seed;
     std::array<daisy::Led, 8> leds;
-    std::array<AdcChannelConfig, 6> knobs;
+    std::array<daisy::AdcChannelConfig, 6> knobs;
+    std::array<daisy::Switch, 8> buttons;
 
     daisysp::Oscillator osc;
 
@@ -23,20 +24,21 @@ struct EarthModule {
             leds[i].SetSampleRate(seed.AudioCallbackRate());
         }
 
-        // We initialize the oscillator with the sample rate of the hardware
-        // this ensures that the frequency of the Oscillator will be accurate.
-        osc.Init(seed.AudioSampleRate());
-
-        std::array knobsPin = {
-            17, 18, 19, 20, 21, 24,
-        };
-
+        std::array knobsPin = { 17, 18, 19, 20, 21, 24 };
         for (unsigned i = 0; i < knobs.size(); i++) {
             knobs[i].InitSingle(seed.GetPin(knobsPin[i]));
         }
         seed.adc.Init(&knobs[0], knobs.size());
-
         seed.adc.Start();
+
+        std::array buttonPin = { 0, 1, 2, 3, 4, 5, 6, 25 };
+        for (unsigned i = 0; i < buttons.size(); i++) {
+            buttons[i].Init(seed.GetPin(buttonPin[i]));
+        }
+
+        // We initialize the oscillator with the sample rate of the hardware
+        // this ensures that the frequency of the Oscillator will be accurate.
+        osc.Init(seed.AudioSampleRate());
     }
 
     void SetLed(unsigned idx, float val) {
@@ -56,9 +58,20 @@ struct EarthModule {
         return 0.95f - seed.adc.GetFloat(idx);
     }
 
+    Switch* GetButton(unsigned idx) {
+        if (idx >= buttons.size() || idx < 0) {
+            return nullptr;
+        }
+
+        return &buttons[idx];
+    }
+
     void Update() {
-        for(unsigned i = 0; i < leds.size(); i++) {
+        for (unsigned i = 0; i < leds.size(); i++) {
             leds[i].Update();
+        }
+        for (unsigned i = 0; i < buttons.size(); i++) {
+            buttons[i].Debounce();
         }
     }
 
@@ -99,8 +112,16 @@ int main(void)
     earth.seed.PrintLine("Hello world");
 
     while(1) {
-        for (unsigned i = 0; i < earth.knobs.size(); i++) {
-            earth.SetLed(i, earth.GetKnob(i));
+        for (unsigned i = 0; i < earth.leds.size(); i++) {
+            float value;
+            if (earth.GetButton(i)->Pressed()) {
+                value = 0.0f;
+            } else if (i < earth.knobs.size()) {
+                value = earth.GetKnob(i);
+            } else {
+                value = 1.0f;
+            }
+            earth.SetLed(i, value);
         }
         System::Delay(1);
     }
