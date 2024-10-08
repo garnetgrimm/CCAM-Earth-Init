@@ -2,7 +2,7 @@
 TARGET = ccam_vco
 
 # Sources
-CPP_SOURCES = main.cpp
+CPP_SOURCES = main.cpp earth.cpp
 
 # Library Locations
 LIBDAISY_DIR = libDaisy
