@@ -8,47 +8,57 @@ using namespace daisy;
 struct EarthModule {
 
     DaisySeed seed;
-    std::array<daisy::Led, 8> led;
-    AdcChannelConfig knob[4];
+    std::array<daisy::Led, 8> leds;
+    std::array<AdcChannelConfig, 6> knobs;
 
     daisysp::Oscillator osc;
 
     void Init() {
         seed.Init();
 
-        for(unsigned i = 0; i < led.size(); i++)
+        for(unsigned i = 0; i < leds.size(); i++)
         {
-            led[i].Init(seed.GetPin(i + 7), false);
-            led[i].Set(0.0f);
-            led[i].SetSampleRate(seed.AudioCallbackRate());
+            leds[i].Init(seed.GetPin(i + 7), false);
+            leds[i].Set(0.0f);
+            leds[i].SetSampleRate(seed.AudioCallbackRate());
         }
 
         // We initialize the oscillator with the sample rate of the hardware
         // this ensures that the frequency of the Oscillator will be accurate.
         osc.Init(seed.AudioSampleRate());
 
-        knob[0].InitSingle(seed.GetPin(18));
-        knob[1].InitSingle(seed.GetPin(19));
-        knob[2].InitSingle(seed.GetPin(21));
-        knob[3].InitSingle(seed.GetPin(24));
-        seed.adc.Init(&knob[0], 4);
+        std::array knobsPin = {
+            17, 18, 19, 20, 21, 24,
+        };
+
+        for (unsigned i = 0; i < knobs.size(); i++) {
+            knobs[i].InitSingle(seed.GetPin(knobsPin[i]));
+        }
+        seed.adc.Init(&knobs[0], knobs.size());
 
         seed.adc.Start();
     }
 
     void SetLed(unsigned idx, float val) {
-        if (idx >= led.size() || idx < 0) {
+        if (idx >= leds.size() || idx < 0) {
             return;
         }
         
-        // LED's support dimming via PWM, but requires
-        // function handlers I don't care to set up
-        led[idx].Set(val);
+        leds[idx].Set(val);
+    }
+
+    float GetKnob(unsigned idx) {
+        if (idx >= knobs.size() || idx < 0) {
+            return 0.0f;
+        }
+
+        // max out at 95% so that we can actually go all the way down to zero
+        return 0.95f - seed.adc.GetFloat(idx);
     }
 
     void Update() {
-        for(unsigned i = 0; i < led.size(); i++) {
-            led[i].Update();
+        for(unsigned i = 0; i < leds.size(); i++) {
+            leds[i].Update();
         }
     }
 
@@ -86,19 +96,12 @@ int main(void)
     // you MUST remove this line. Otherwise the program will not run
     // earth.seed.StartLog(true);
 
-    int blinkIndex = 0;
-    float ledAmount = 0.0f;
+    earth.seed.PrintLine("Hello world");
+
     while(1) {
-        earth.SetLed(blinkIndex, ledAmount);
-        blinkIndex++;
-        if (blinkIndex == 8) {
-            ledAmount += 0.1f;
-            blinkIndex = 0;
+        for (unsigned i = 0; i < earth.knobs.size(); i++) {
+            earth.SetLed(i, earth.GetKnob(i));
         }
-        if (ledAmount >= 1.0f) {
-            ledAmount = 0.0f;
-        }
-        System::Delay(500);
-        earth.seed.PrintLine("Toggle %d %d", blinkIndex, ledAmount);
+        System::Delay(1);
     }
 }
