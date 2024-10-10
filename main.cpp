@@ -1,13 +1,15 @@
-#include "earth.h"
+#include "board.h"
 #include "daisysp.h"
+#include <array>
 
-EarthModule earth;
+json2daisy::DaisyEarth earth;
 daisysp::Oscillator osc;
 
-static void EarthCallback(AudioHandle::InputBuffer in, 
-            AudioHandle::OutputBuffer out, 
+static void EarthCallback(daisy::AudioHandle::InputBuffer in, 
+            daisy::AudioHandle::OutputBuffer out, 
             size_t size) {
-    earth.Update();
+    earth.ProcessAllControls();
+    earth.PostProcess();
 
     for (size_t i = 0; i < size; i++)
     {
@@ -20,25 +22,56 @@ static void EarthCallback(AudioHandle::InputBuffer in,
 int main(void)
 {
     earth.Init();
-    earth.seed.StartAudio(EarthCallback);
+    earth.StartAudio(EarthCallback);
 
-    osc.Init(earth.seed.AudioSampleRate());
+    osc.Init(earth.som.AudioSampleRate());
 
-    earth.seed.StartLog();
-    earth.seed.PrintLine("Hello world");
+    earth.som.StartLog();
+    earth.som.PrintLine("Hello world");
+
+    std::array<daisy::Led*, 8> leds = {
+        &earth.led1,
+        &earth.led2,
+        &earth.led3,
+        &earth.led4,
+        &earth.led5,
+        &earth.led6,
+        &earth.led7,
+        &earth.led8
+    };
+
+    std::array<daisy::Switch*, 8> buttons = {
+        &earth.button1,
+        &earth.button2,
+        &earth.button3,
+        &earth.button4,
+        &earth.button5,
+        &earth.button6,
+        &earth.button7,
+        &earth.button8,
+    };
+
+    std::array<daisy::AnalogControl*, 6> knobs = {
+        &earth.knob1,
+        &earth.knob2,
+        &earth.knob3,
+        &earth.knob4,
+        &earth.knob5,
+        &earth.knob6,
+    };
 
     while(1) {
-        for (unsigned i = 0; i < earth.leds.size(); i++) {
+        for (unsigned i = 0; i < leds.size(); i++) {
             float value;
-            if (earth.GetButton(i)) {
+            if (buttons[i]->Pressed()) {
                 value = 0.0f;
-            } else if (i < earth.knobs.size()) {
-                value = earth.GetKnob(i);
+            } else if (i < knobs.size()) {
+                value = knobs[i]->Value();
             } else {
                 value = 1.0f;
             }
-            earth.SetLed(i, value);
+            leds[i]->Set(value);
         }
-        System::Delay(1);
+        daisy::System::Delay(1);
     }
 }
