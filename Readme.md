@@ -5,18 +5,13 @@ This repository is meant to serve primarily as a jumping off point for C++ proje
 
 ## Setup
 ```
-git clone git@github.com:garnetgrimm/CCAM-Earth-Init.git
+git clone git@github.com:garnetgrimm/CCAM-Earth-Init.git --recurse-submodules
+
 cd CCAM-Earth-init
-git submodule update --init --recursive
+
 yum install dfu-util arm-none-eabi-gcc-cs arm-none-eabi-newlib
 
-pushd DaisySP
 make
-popd
-
-pushd libDaisy
-make
-popd
 ```
 
 ## Flash
