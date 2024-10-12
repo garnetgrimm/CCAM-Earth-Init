@@ -29,48 +29,17 @@ int main(void)
     earth.som.StartLog();
     earth.som.PrintLine("Hello world");
 
-    std::array<daisy::Led*, 8> leds = {
-        &earth.led1,
-        &earth.led2,
-        &earth.led3,
-        &earth.led4,
-        &earth.led5,
-        &earth.led6,
-        &earth.led7,
-        &earth.led8
-    };
-
-    std::array<daisy::Switch*, 8> buttons = {
-        &earth.button1,
-        &earth.button2,
-        &earth.button3,
-        &earth.button4,
-        &earth.button5,
-        &earth.button6,
-        &earth.button7,
-        &earth.button8,
-    };
-
-    std::array<daisy::AnalogControl*, 6> knobs = {
-        &earth.knob1,
-        &earth.knob2,
-        &earth.knob3,
-        &earth.knob4,
-        &earth.knob5,
-        &earth.knob6,
-    };
-
     while(1) {
-        for (unsigned i = 0; i < leds.size(); i++) {
+        for (unsigned i = 0; i < earth.leds.size(); i++) {
             float value;
-            if (buttons[i]->Pressed()) {
+            if (earth.buttons[i]->Pressed()) {
                 value = 0.0f;
-            } else if (i < knobs.size()) {
-                value = knobs[i]->Value();
+            } else if (i < earth.knobs.size()) {
+                value = earth.knobs[i]->Value();
             } else {
                 value = 1.0f;
             }
-            leds[i]->Set(value);
+            earth.leds[i]->Set(value);
         }
         daisy::System::Delay(1);
     }
