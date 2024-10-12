@@ -15,6 +15,8 @@ BOARD ?= earth
 JSON_FILE := ./json/$(BOARD).json
 
 earth: board.h
+	cd $(DAISYSP_DIR) && make
+	cd $(LIBDAISY_DIR) && make
 	$(MAKE) all
 
 board.h: $(JSON_FILE)
@@ -24,3 +26,10 @@ board.h: $(JSON_FILE)
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
 include $(SYSTEM_FILES_DIR)/Makefile
+
+.PHONY: clean
+clean:
+	cd $(DAISYSP_DIR) && $(MAKE) clean
+	cd $(LIBDAISY_DIR) && $(MAKE) clean
+	rm -r build
+	rm board.h
