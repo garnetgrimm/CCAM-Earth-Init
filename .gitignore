@@ -1,5 +1,5 @@
 build/
-board.h
+json/*.h
 
 # Prerequisites
 *.d

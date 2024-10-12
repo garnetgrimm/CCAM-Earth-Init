@@ -11,17 +11,17 @@ DAISYSP_DIR = DaisySP
 CPP_STANDARD = -std=gnu++20
 APP_TYPE = BOOT_SRAM
 
-BOARD ?= earth
-JSON_FILE := ./json/$(BOARD).json
+JSON_FILES := $(wildcard ./json/*.json)
+JSON_HEADERS := $(JSON_FILES:.json=.h)
 
-earth: board.h
+earth: $(JSON_HEADERS)
 	cd $(DAISYSP_DIR) && make
 	cd $(LIBDAISY_DIR) && make
 	$(MAKE) all
 
-board.h: $(JSON_FILE)
+$(JSON_HEADERS): $(JSON_FILES)
 	PYTHONPATH=$(PYTHONPATH):json2daisy/src \
-	python -m json2daisy $(JSON_FILE) -o board.h
+	python -m json2daisy $^
 
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
