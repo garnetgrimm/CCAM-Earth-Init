@@ -41,10 +41,10 @@ int main(void)
     lfo2.Init(earth.CvOutSampleRate());
     
     lfo1.SetFreq(110.0f);
-    lfo1.SetAmp(0x7FFF>>2);
+    lfo1.SetAmp(0xFFFF>>4);
 
     lfo2.SetFreq(220.0f);
-    lfo2.SetAmp(0x7FFF>>2);
+    lfo2.SetAmp(0xFFFF>>4);
 
     vco.SetFreq(440.0f);
 
