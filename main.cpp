@@ -4,7 +4,8 @@
 
 json2daisy::DaisyEarth earth;
 daisysp::Oscillator vco;
-daisysp::Oscillator lfo;
+daisysp::Oscillator lfo1;
+daisysp::Oscillator lfo2;
 
 static void EarthCallback(daisy::AudioHandle::InputBuffer in, 
             daisy::AudioHandle::OutputBuffer out, 
@@ -24,10 +25,9 @@ static void CVOutCallback(uint16_t **out, size_t size)
 {
     for(size_t i = 0; i < size; i++)
     {
-        out[0][i] = earth.knob1.GetRawValue();
-        out[1][i] = (uint16_t)(lfo.Process() * 65535.0f);
+        out[0][i] = earth.knob1.Value() * lfo1.Process();
+        out[1][i] = earth.knob2.Value() * lfo2.Process();
     }
-    earth.som.PrintLine("got %d %d", out[0][0], out[1][0]);
 }
 
 int main(void)
@@ -37,7 +37,16 @@ int main(void)
     earth.StartCV(CVOutCallback);
 
     vco.Init(earth.som.AudioSampleRate());
-    lfo.Init(earth.som.dac.GetConfig().target_samplerate);
+    lfo1.Init(earth.CvOutSampleRate());
+    lfo2.Init(earth.CvOutSampleRate());
+    
+    lfo1.SetFreq(110.0f);
+    lfo1.SetAmp(0x7FFF>>2);
+
+    lfo2.SetFreq(220.0f);
+    lfo2.SetAmp(0x7FFF>>2);
+
+    vco.SetFreq(440.0f);
 
     earth.som.StartLog(false);
     earth.som.PrintLine("Hello world");
