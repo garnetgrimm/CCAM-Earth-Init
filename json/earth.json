@@ -97,7 +97,7 @@
             "pin": 24
         },
 		"cvout": {
-            "component": "CVOutsDMA",
+            "component": "CVOuts",
             "pin": 23
         },
 		"cvin1": {
