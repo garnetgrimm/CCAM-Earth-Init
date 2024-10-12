@@ -96,12 +96,8 @@
             "component": "AnalogControl",
             "pin": 24
         },
-		"cvout1": {
-            "component": "CVOuts",
-            "pin": 22
-        },
-		"cvout2": {
-            "component": "CVOuts",
+		"cvout": {
+            "component": "CVOutsDMA",
             "pin": 23
         },
 		"cvin1": {

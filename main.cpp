@@ -3,7 +3,8 @@
 #include <array>
 
 json2daisy::DaisyEarth earth;
-daisysp::Oscillator osc;
+daisysp::Oscillator vco;
+daisysp::Oscillator lfo;
 
 static void EarthCallback(daisy::AudioHandle::InputBuffer in, 
             daisy::AudioHandle::OutputBuffer out, 
@@ -13,20 +14,32 @@ static void EarthCallback(daisy::AudioHandle::InputBuffer in,
 
     for (size_t i = 0; i < size; i++)
     {
-        float value = osc.Process();
+        float value = vco.Process();
         out[0][i] = value;
         out[1][i] = value;
     }
+}
+
+static void CVOutCallback(uint16_t **out, size_t size)
+{
+    for(size_t i = 0; i < size; i++)
+    {
+        out[0][i] = earth.knob1.GetRawValue();
+        out[1][i] = (uint16_t)(lfo.Process() * 65535.0f);
+    }
+    earth.som.PrintLine("got %d %d", out[0][0], out[1][0]);
 }
 
 int main(void)
 {
     earth.Init();
     earth.StartAudio(EarthCallback);
+    earth.StartCV(CVOutCallback);
 
-    osc.Init(earth.som.AudioSampleRate());
+    vco.Init(earth.som.AudioSampleRate());
+    lfo.Init(earth.som.dac.GetConfig().target_samplerate);
 
-    earth.som.StartLog();
+    earth.som.StartLog(false);
     earth.som.PrintLine("Hello world");
 
     while(1) {
@@ -41,6 +54,7 @@ int main(void)
             }
             earth.leds[i]->Set(value);
         }
+
         daisy::System::Delay(1);
     }
 }
