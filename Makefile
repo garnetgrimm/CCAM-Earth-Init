@@ -12,12 +12,14 @@ CPP_STANDARD = -std=gnu++20
 APP_TYPE = BOOT_SRAM
 
 BOARD ?= earth
+JSON_FILE := ./json/$(BOARD).json
 
 earth: board.h
 	$(MAKE) all
 
 board.h: $(JSON_FILE)
-	python -m headergen $(BOARD)
+	PYTHONPATH=$(PYTHONPATH):json2daisy/src \
+	python -m json2daisy $(JSON_FILE) -o board.h
 
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
