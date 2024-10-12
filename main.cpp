@@ -35,7 +35,7 @@ int main(void)
             if (earth.buttons[i]->Pressed()) {
                 value = 0.0f;
             } else if (i < earth.knobs.size()) {
-                value = earth.knobs[i]->Value();
+                value = earth.knobs[i]->Value() - 0.05;
             } else {
                 value = 1.0f;
             }
