@@ -11,6 +11,8 @@ DAISYSP_DIR = DaisySP
 CPP_STANDARD = -std=gnu++20
 APP_TYPE = BOOT_SRAM
 
+USE_DAISYSP_LGPL = 1
+
 JSON_FILES := $(wildcard ./json/*.json)
 JSON_HEADERS := $(JSON_FILES:.json=.h)
 

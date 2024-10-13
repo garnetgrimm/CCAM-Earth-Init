@@ -1,10 +1,15 @@
-#include "json/earth.h"
-#include "daisysp.h"
 #include <array>
+
+#include "json/earth.h"
+
+#include "daisysp.h"
+#include "Utility/dsp.h"
+#include "Effects/reverbsc.h"
 
 json2daisy::DaisyEarth earth;
 daisysp::Oscillator vco;
 daisysp::Oscillator lfo;
+daisysp::ReverbSc verb;
 
 static constexpr float MAX_U16_FLOAT = static_cast<float>(0xFFFF);
 
@@ -14,11 +19,19 @@ static void EarthCallback(daisy::AudioHandle::InputBuffer in,
     earth.ProcessAllControls();
     earth.PostProcess();
 
+    float time_cv = daisysp::fmap(earth.knob4.Value(), 0.3f, 0.99f);
+    float damp_cv = daisysp::fmap(earth.knob5.Value(), 1000.f, 19000.f, daisysp::Mapping::LOG);
+
+    verb.SetFeedback(time_cv);
+    verb.SetLpFreq(damp_cv);
+
     for (size_t i = 0; i < size; i++)
     {
-        float value = vco.Process();
-        out[0][i] = value;
-        out[1][i] = value;
+        verb.Process(IN_L[i], IN_R[i], &OUT_L[i], &OUT_R[i]);
+
+        float voice = vco.Process() * earth.knob6.Value();
+        OUT_L[i] += voice;
+        OUT_R[i] += voice;
     }
 }
 
@@ -39,12 +52,13 @@ int main(void)
     earth.StartCV(CVOutCallback);
 
     vco.Init(earth.som.AudioSampleRate());
-    lfo.Init(earth.CvOutSampleRate());
-    
+    vco.SetFreq(440.0f);
+
+    lfo.Init(earth.CvOutSampleRate());    
     lfo.SetFreq(220.0f);
     lfo.SetAmp(MAX_U16_FLOAT);
 
-    vco.SetFreq(440.0f);
+    verb.Init(earth.som.AudioSampleRate());
 
     earth.som.StartLog(false);
     earth.som.PrintLine("Hello world");
