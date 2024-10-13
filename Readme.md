@@ -3,6 +3,26 @@
 ## About
 This repository is meant to serve primarily as a jumping off point for C++ projects built on the CCAM earth module. NOTE: I am running on Fedora linux, the steps will likely be fairly different on Mac/Windows.
 
+## Patch
+* Buttons
+    * When pressed, the corresponding LED will turn off
+* LEDs
+    * 1 through 6: map directly to corresponding knob
+    * 7 through 8: map directly to corresponding cvin
+* CvOuts
+    * 1: outputs 0-3V scaled linearly with knob1 value
+    * 2: outputs lfo and fixed 220Hz
+* CvIns
+    * 1 through 2: map directly to LED 7 / 8
+* Audio out
+    * 1 through 2: reverb of audio in + vco (volume knob 6)
+* Knobs
+    * 1: linear output (cvout)
+    * 2: lfo volume (cvout)
+    * 4: reverb time (audio 1+2)
+    * 5: reverb damping (audio 1+2)
+    * 6: vco volume (audio 1+2)
+
 ## Setup
 ```
 git clone git@github.com:garnetgrimm/CCAM-Earth-Init.git --recurse-submodules
