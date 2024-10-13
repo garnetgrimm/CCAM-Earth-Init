@@ -29,7 +29,7 @@ static void EarthCallback(daisy::AudioHandle::InputBuffer in,
     {
         verb.Process(IN_L[i], IN_R[i], &OUT_L[i], &OUT_R[i]);
 
-        float voice = vco.Process() * earth.knob6.Value();
+        float voice = vco.Process() * (earth.knob6.Value() - 0.05);
         OUT_L[i] += voice;
         OUT_R[i] += voice;
     }

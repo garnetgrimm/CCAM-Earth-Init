@@ -9,7 +9,7 @@ LIBDAISY_DIR = libDaisy
 DAISYSP_DIR = DaisySP
 
 CPP_STANDARD = -std=gnu++20
-APP_TYPE = BOOT_SRAM
+APP_TYPE = BOOT_QSPI
 
 USE_DAISYSP_LGPL = 1
 
@@ -33,5 +33,5 @@ include $(SYSTEM_FILES_DIR)/Makefile
 clean:
 	cd $(DAISYSP_DIR) && $(MAKE) clean
 	cd $(LIBDAISY_DIR) && $(MAKE) clean
-	rm -r build
-	rm board.h
+	rm -rf build
+	rm -f json/*.h
