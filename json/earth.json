@@ -74,27 +74,33 @@
         },
 		"knob1": {
             "component": "AnalogControl",
-            "pin": 17
+            "pin": 17,
+            "flip": "true"
         },
         "knob2": {
             "component": "AnalogControl",
-            "pin": 18
+            "pin": 18,
+            "flip": "true"
         },
         "knob3": {
             "component": "AnalogControl",
-            "pin": 19
+            "pin": 19,
+            "flip": "true"
         },
         "knob4": {
             "component": "AnalogControl",
-            "pin": 20
+            "pin": 20,
+            "flip": "true"
         },
 		"knob5": {
             "component": "AnalogControl",
-            "pin": 21
+            "pin": 21,
+            "flip": "true"
         },
 		"knob6": {
             "component": "AnalogControl",
-            "pin": 24
+            "pin": 24,
+            "flip": "true"
         },
 		"cvout": {
             "component": "CVOuts"

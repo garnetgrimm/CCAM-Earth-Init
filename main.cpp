@@ -4,8 +4,9 @@
 
 json2daisy::DaisyEarth earth;
 daisysp::Oscillator vco;
-daisysp::Oscillator lfo1;
-daisysp::Oscillator lfo2;
+daisysp::Oscillator lfo;
+
+static constexpr float MAX_U16_FLOAT = static_cast<float>(0xFFFF);
 
 static void EarthCallback(daisy::AudioHandle::InputBuffer in, 
             daisy::AudioHandle::OutputBuffer out, 
@@ -25,8 +26,9 @@ static void CVOutCallback(uint16_t **out, size_t size)
 {
     for(size_t i = 0; i < size; i++)
     {
-        out[0][i] = earth.knob1.Value() * lfo1.Process();
-        out[1][i] = earth.knob2.Value() * lfo2.Process();
+        // the outputs are switched, do not know why.
+        out[1][i] = static_cast<uint16_t>(earth.knob1.Value() * MAX_U16_FLOAT) >> 4;
+        out[0][i] = static_cast<uint16_t>(earth.knob2.Value() * lfo.Process()) >> 4;
     }
 }
 
@@ -37,14 +39,10 @@ int main(void)
     earth.StartCV(CVOutCallback);
 
     vco.Init(earth.som.AudioSampleRate());
-    lfo1.Init(earth.CvOutSampleRate());
-    lfo2.Init(earth.CvOutSampleRate());
+    lfo.Init(earth.CvOutSampleRate());
     
-    lfo1.SetFreq(110.0f);
-    lfo1.SetAmp(0xFFFF>>4);
-
-    lfo2.SetFreq(220.0f);
-    lfo2.SetAmp(0xFFFF>>4);
+    lfo.SetFreq(220.0f);
+    lfo.SetAmp(MAX_U16_FLOAT);
 
     vco.SetFreq(440.0f);
 
@@ -52,16 +50,16 @@ int main(void)
     earth.som.PrintLine("Hello world");
 
     while(1) {
+        for (unsigned i = 0; i < earth.knobs.size(); i++) {
+            earth.leds[i]->Set(earth.knobs[i]->Value() - 0.05);
+        }
+        earth.led7.Set(earth.cvin1.Value() - 0.05);
+        earth.led8.Set(earth.cvin2.Value() - 0.05);
+
         for (unsigned i = 0; i < earth.leds.size(); i++) {
-            float value;
             if (earth.buttons[i]->Pressed()) {
-                value = 0.0f;
-            } else if (i < earth.knobs.size()) {
-                value = earth.knobs[i]->Value() - 0.05;
-            } else {
-                value = 1.0f;
+                earth.leds[i]->Set(0.0f);
             }
-            earth.leds[i]->Set(value);
         }
 
         daisy::System::Delay(1);
