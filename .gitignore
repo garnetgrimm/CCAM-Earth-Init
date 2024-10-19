@@ -1,5 +1,4 @@
 build/
-json/*.h
 
 # Prerequisites
 *.d
