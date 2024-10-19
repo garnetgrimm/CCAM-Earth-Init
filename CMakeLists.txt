@@ -12,6 +12,7 @@ set(USE_DAISYSP_LGPL 1)
 set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(DaisySP)
+add_subdirectory(DaisySP/DaisySP-LGPL)
 add_subdirectory(libDaisy)
 
 add_subdirectory(json)
